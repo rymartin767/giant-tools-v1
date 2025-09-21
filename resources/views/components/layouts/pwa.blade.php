@@ -4,7 +4,8 @@
         @include('partials.head')
     </head>
     <body class="min-h-screen bg-white dark:bg-zinc-800">
-        <flux:sidebar sticky stashable class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+        <div class="flex min-h-screen">
+            <flux:sidebar sticky stashable class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
             <a href="{{ route('dashboard') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
@@ -125,7 +126,17 @@
             </flux:dropdown>
         </flux:header>
 
-        {{ $slot }}
+            <div class="flex-1 flex flex-col min-h-screen p-6">
+                {{ $slot }}
+            </div>
+        </div>
+
+        <!-- Connection Status Indicator -->
+        <div id="connection-status"
+             class="fixed bottom-4 left-4 right-4 mx-auto max-w-sm bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-lg text-center text-sm transition-transform transform translate-y-full"
+             style="display: none;">
+            <span id="status-text">You're offline. Changes will sync when connection is restored.</span>
+        </div>
 
         @fluxScripts
 
@@ -168,6 +179,25 @@
                 }
             });
 
+            // Connection Status
+            function updateConnectionStatus() {
+                const statusDiv = document.getElementById('connection-status');
+                const statusText = document.getElementById('status-text');
+
+                if (navigator.onLine) {
+                    statusDiv.style.display = 'none';
+                    statusDiv.classList.add('translate-y-full');
+                } else {
+                    statusDiv.style.display = 'block';
+                    statusDiv.classList.remove('translate-y-full');
+                    statusText.textContent = "You're offline. Changes will sync when connection is restored.";
+                }
+            }
+
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+            updateConnectionStatus(); // Initial check
+
             // Initialize IndexedDB for offline storage
             function initIndexedDB() {
                 const request = indexedDB.open('ChecklistDB', 1);
@@ -197,5 +227,6 @@
 
             initIndexedDB();
         </script>
+
     </body>
 </html>
