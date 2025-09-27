@@ -113,7 +113,7 @@
                      style="width: {{ $this->getProgressPercentage() }}%"></div>
             </div>
             <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                {{ $this->getProgressPercentage() }}% Complete
+                {{ round($this->getProgressPercentage()) }}% Complete
             </div>
         </div>
 
@@ -129,7 +129,7 @@
                                 'bg-gray-100 text-gray-600 dark:bg-zinc-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-600' => $stepKey != $currentStep && !$this->isStepComplete($stepKey)
                             ])>
                         <div @class([
-                            'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold mb-1',
+                            'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold',
                             'bg-green-500 text-white' => $this->isStepComplete($stepKey),
                             'bg-blue-500 text-white' => $stepKey == $currentStep,
                             'bg-gray-300 text-gray-600 dark:bg-zinc-600 dark:text-gray-300' => $stepKey != $currentStep && !$this->isStepComplete($stepKey)
@@ -138,11 +138,16 @@
                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                                 </svg>
+                            @elseif ($stepKey == $currentStep)
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                                </svg>
                             @else
-                                {{ $stepKey }}
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"></path>
+                                </svg>
                             @endif
                         </div>
-                        <span class="text-xs font-medium">{{ $stepKey }}</span>
                     </button>
                 @endforeach
             </div>
