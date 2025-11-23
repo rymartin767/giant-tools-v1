@@ -36,14 +36,20 @@
 
                 <!-- Flight Details Display -->
                 <div class="space-y-3">
+                    @if($this->engines)
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-600 dark:text-gray-400">Engine Type:</span>
-                        <span class="font-medium text-gray-900 dark:text-white">{{ $engines }}</span>
+                        <span class="font-medium text-gray-900 dark:text-white">{{ $this->engines }}</span>
                     </div>
+                    @endif
+
+                    @if($this->config)
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-600 dark:text-gray-400">Configuration:</span>
-                        <span class="font-medium text-gray-900 dark:text-white">{{ $config }}</span>
+                        <span class="font-medium text-gray-900 dark:text-white">{{ $this->config }}</span>
                     </div>
+                    @endif
+
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-600 dark:text-gray-400">Departure:</span>
                         <span class="font-medium text-gray-900 dark:text-white">{{ $departureAirport }}</span>
@@ -52,7 +58,8 @@
                         <span class="text-sm text-gray-600 dark:text-gray-400">Arrival:</span>
                         <span class="font-medium text-gray-900 dark:text-white">{{ $arrivalAirport }}</span>
                     </div>
-                    @if($supernumeraries)
+
+                    @if($this->supernumeraries)
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-600 dark:text-gray-400">Supernumeraries:</span>
                         <span class="text-xs px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded-full">Yes</span>
@@ -168,54 +175,14 @@
 
                 <!-- Checklist Items -->
                 <div class="space-y-3 mb-6">
-                    @php $filteredItems = $this->getFilteredItems($currentStep); @endphp
-
-                    @foreach ($filteredItems as $index => $item)
-                        @php $isCompleted = in_array($index, $this->completedItems[$currentStep] ?? []); @endphp
-
-                        <div wire:click="toggleItem('{{ $currentStep }}', {{ $index }})"
-                             @click="triggerHapticFeedback()"
-                             @class([
-                                 'flex items-start p-4 rounded-2xl cursor-pointer transition-all duration-200 group touch-manipulation',
-                                 'bg-green-50 border-l-4 border-green-400 dark:bg-green-900/20 dark:border-green-500' => $isCompleted,
-                                 'bg-white border border-gray-200 hover:border-gray-300 dark:bg-zinc-800 dark:border-zinc-700 dark:hover:border-zinc-600' => !$isCompleted
-                             ])>
-
-                            <!-- Checkbox -->
-                            <div class="flex-shrink-0 mr-4 mt-1">
-                                <div @class([
-                                    'w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200',
-                                    'bg-green-500 border-green-500' => $isCompleted,
-                                    'border-gray-300 dark:border-zinc-600 group-hover:border-blue-400' => !$isCompleted
-                                ])>
-                                    @if ($isCompleted)
-                                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                        </svg>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <!-- Task Content -->
-                            <div class="flex-1 min-w-0">
-                                <span @class([
-                                    'text-sm font-medium transition-all duration-200 block',
-                                    'line-through text-gray-500 dark:text-gray-400' => $isCompleted,
-                                    'text-gray-800 dark:text-gray-200' => !$isCompleted
-                                ])>
-                                    {{ $item }}
-                                </span>
-                            </div>
-
-                            <!-- Completion Badge -->
-                            @if ($isCompleted)
-                                <div class="flex-shrink-0 ml-3">
-                                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium dark:bg-green-900 dark:text-green-200">
-                                        ✓
-                                    </span>
-                                </div>
-                            @endif
-                        </div>
+                    @foreach ($this->getFilteredItems($currentStep) as $index => $item)
+                        @livewire('checklist-item', [
+                            'stepKey' => $currentStep,
+                            'itemIndex' => $index,
+                            'item' => $item,
+                            'isCompleted' => in_array((string)$index, array_map('strval', $this->completedItems[$currentStep] ?? []), true),
+                            'completedSubitems' => $this->completedItems[$currentStep] ?? []
+                        ], key("item-{$currentStep}-{$index}"))
                     @endforeach
                 </div>
 

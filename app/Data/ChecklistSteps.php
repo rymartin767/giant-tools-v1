@@ -14,7 +14,13 @@ class ChecklistSteps
                     'Sync Comply 360',
                     'Update JeppFD Pro',
                     'Review NOTAMS',
-                    'Charge iPad',
+                    [
+                        'text' => 'Charge iPad',
+                        'notes' => [
+                            'type' => 'text',
+                            'content' => 'Minimum 80% battery required',
+                        ],
+                    ],
                 ],
             ],
             '1.1' => [
@@ -23,19 +29,50 @@ class ChecklistSteps
                 'items' => [
                     'Download Flight Plan',
                     'Verify SOB',
-                    'Review Fuel Planning',
-                    'If WX @ DEST + ALT include TS: Order more fuel',
+                    [
+                        'text' => 'Review Fuel Planning',
+                        'notes' => [
+                            'type' => 'text',
+                            'content' => 'WX at DEST+ALT (TS) = MORE FUEL!',
+                        ],
+                        'images' => [
+                            [
+                                'title' => 'Fuel Planning Reference',
+                                'url' => '/images/fuel.PNG',
+                                'alt' => 'Fuel planning chart',
+                                'caption' => 'Review fuel requirements and reserves',
+                            ],
+                        ],
+                    ],
                 ],
             ],
             '2.0' => [
                 'title' => 'NP15: Aircraft Log Inspection Procedure',
                 'description' => 'Captain Aircraft Log - Check in accordance with the FOM',
                 'items' => [
-                    'Verify Tail # (Logbook, OFP, & actual aircraft)',
+                    [
+                        'text' => 'Verify Tail # (Logbook, OFP, & actual aircraft)',
+                    ],
                     'Check Aircraft Log for write-ups and mx history',
-                    'Check Deferred Items',
-                    'Check Last Autoland (30 days maximum)',
-                    'Check Daily or Transit check',
+                    [
+                        'text' => 'Check Deferred Items',
+                        'notes' => [
+                            'type' => 'modal',
+                            'title' => 'Deferred Items Review',
+                            'content' => 'Reference the DDG for any operating limitations or crew operating (O) procedures as a result of MEL/CDL/NEF items identified on the flight plan and/or in the Aircraft Log. If inoperative/missing equipment is not entered in the Aircraft Log or not posted with INOP Placards describing the limitation, contact maintenace or Maintenance Control.',
+                        ],
+                    ],
+                    [
+                        'text' => 'Check Last Autoland (30 days maximum)',
+                    ],
+                    [
+                        'text' => 'Check Daily or Transit check',
+                        'notes' => [
+                            'type' => 'modal',
+                            'title' => 'Daily/Transit Check Requirements',
+                            'content' => 'A daily check must be accomplished with an Airworthiness Release. The Daily Check is valid for 48 hours and is not allowed to expire in flight. The daily check will expire 48 hours from the Block Out Time of the flight following the daily check.',
+                        ],
+                    ],
                     'Check PDSC (if applicable)',
                     'Check Verification flight (if applicable)',
                 ],
@@ -104,6 +141,43 @@ class ChecklistSteps
                     'Verify TFC on both NDs & final approach clear of conflicting traffic',
                 ],
             ],
+            /*
+            '3.0' => [
+                'title' => 'ETOPS Procedures',
+                'description' => 'Extended-range Twin-engine Operational Performance Standards',
+                'items' => [
+                    [
+                        'text' => 'Verify ETOPS fuel requirements',
+                        'conditions' => ['etops' => [true]],
+                        'notes' => [
+                            'type' => 'modal',
+                            'title' => 'ETOPS Fuel Requirements',
+                            'content' => 'Ensure sufficient fuel for the critical fuel scenario, including holding at the most distant suitable airport. Verify fuel loaded matches or exceeds the ETOPS required fuel on the flight plan.',
+                        ],
+                    ],
+                    [
+                        'text' => 'Confirm ETOPS alternate airports',
+                        'conditions' => ['etops' => [true]],
+                        'notes' => [
+                            'type' => 'text',
+                            'content' => 'Verify designated ETOPS alternates are available and meet weather requirements',
+                        ],
+                    ],
+                    [
+                        'text' => 'Review MEL items for ETOPS compliance',
+                        'conditions' => ['etops' => [true]],
+                    ],
+                    [
+                        'text' => 'ETOPS entry point noted',
+                        'conditions' => ['etops' => [true]],
+                    ],
+                    [
+                        'text' => 'ETOPS exit point noted',
+                        'conditions' => ['etops' => [true]],
+                    ],
+                ],
+            ],
+            */
         ];
     }
 }

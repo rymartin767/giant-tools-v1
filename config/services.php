@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'giant_api' => [
+        'token' => env('GIANTS_API_TOKEN'),
+    ],
+
 ];

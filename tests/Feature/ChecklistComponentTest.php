@@ -1,50 +1,55 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Checklist;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Livewire;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabase::class)->group('checklist');
 
 beforeEach(function () {
-    $this->user = User::factory()->create();
-    $this->actingAs($this->user);
+    // Start session to get session ID
+    $this->withSession([]);
+    $this->sessionId = session()->getId();
+
+    // Set employee number for this session
+    $this->employeeNumber = 'test-emp-123';
+    Cache::put("employee_number_{$this->sessionId}", $this->employeeNumber, now()->addDays(30));
+
+    // Set up aircraft details (required for checklist)
+    Cache::put("aircraft_details_{$this->employeeNumber}", [
+        'selectedAirframe' => 'B767-300ER',
+        'engines' => 'GE',
+        'config' => 'PAX',
+    ], now()->addDays(30));
+
+    // Set up flight details in cache so checklist shows main view
+    Cache::put("flight_details_{$this->employeeNumber}", [
+        'departureAirport' => 'KJFK',
+        'arrivalAirport' => 'KLAX',
+        'etops' => false,
+    ], now()->addDays(30));
 });
 
-test('checklist component loads flight details form initially', function () {
+test('checklist component loads aircraft configuration form when no aircraft configured', function () {
+    // Clear aircraft details
+    Cache::forget("aircraft_details_{$this->employeeNumber}");
+
     Livewire::test(Checklist::class)
-        ->assertSee('Flight Configuration')
-        ->assertSee('Engine Type')
-        ->assertSee('Configuration')
-        ->assertSee('Departure Airport')
-        ->assertSee('Arrival Airport');
+        ->assertSee('Aircraft Configuration Required')
+        ->assertSee('Go to Aircraft Configuration');
 });
 
-test('can complete flight details form', function () {
+test('checklist displays main view when flight details are configured', function () {
     Livewire::test(Checklist::class)
-        ->set('engines', 'GE')
-        ->set('config', 'PAX')
-        ->set('departureAirport', 'KJFK')
-        ->set('arrivalAirport', 'KLAX')
-        ->call('completeFlightDetails')
-        ->assertHasNoErrors()
-        ->assertSee('Progress');
+        ->assertSee('Pre-Duty Checklist Items')
+        ->assertDontSee('Select Departure Airport');
 });
 
-test('flight details form validates required fields', function () {
-    Livewire::test(Checklist::class)
-        ->call('completeFlightDetails')
-        ->assertHasErrors(['engines', 'config', 'departureAirport', 'arrivalAirport']);
-});
-
-test('can toggle checklist items after flight details complete', function () {
-    $component = Livewire::test(Checklist::class)
-        ->set('engines', 'GE')
-        ->set('config', 'PAX')
-        ->set('departureAirport', 'KJFK')
-        ->set('arrivalAirport', 'KLAX')
-        ->call('completeFlightDetails');
+test('can toggle checklist items', function () {
+    $component = Livewire::test(Checklist::class);
 
     // Toggle first item of first step
     $component->call('toggleItem', '1.0', 0)
@@ -55,12 +60,7 @@ test('can toggle checklist items after flight details complete', function () {
 });
 
 test('can navigate between steps', function () {
-    $component = Livewire::test(Checklist::class)
-        ->set('engines', 'GE')
-        ->set('config', 'PAX')
-        ->set('departureAirport', 'KJFK')
-        ->set('arrivalAirport', 'KLAX')
-        ->call('completeFlightDetails');
+    $component = Livewire::test(Checklist::class);
 
     // Go to next step
     $component->call('goToStep', '1.1')
@@ -68,24 +68,14 @@ test('can navigate between steps', function () {
 });
 
 test('progress percentage calculates correctly', function () {
-    $component = Livewire::test(Checklist::class)
-        ->set('engines', 'GE')
-        ->set('config', 'PAX')
-        ->set('departureAirport', 'KJFK')
-        ->set('arrivalAirport', 'KLAX')
-        ->call('completeFlightDetails');
+    $component = Livewire::test(Checklist::class);
 
     // Initially no steps completed
     expect($component->instance()->getProgressPercentage())->toBe(0);
 });
 
 test('can reset checklist', function () {
-    $component = Livewire::test(Checklist::class)
-        ->set('engines', 'GE')
-        ->set('config', 'PAX')
-        ->set('departureAirport', 'KJFK')
-        ->set('arrivalAirport', 'KLAX')
-        ->call('completeFlightDetails');
+    $component = Livewire::test(Checklist::class);
 
     // Complete an item
     $component->call('toggleItem', '1.0', 0);
